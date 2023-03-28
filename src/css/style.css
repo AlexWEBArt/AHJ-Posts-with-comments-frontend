@@ -1,0 +1,115 @@
+html {
+    height: 100%;
+}
+
+body {
+    min-height: 100%;
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-size: 16px;
+    line-height: 1.42857143;
+    color: #333;
+    background-color: #fff;
+}
+
+p {
+    margin-block-start: 0;
+    margin-block-end: 0;
+}
+
+.title {
+    font-size: 20px;
+}
+
+.app-container {
+    margin: 5%;
+}
+
+.container-posts {
+    width: 100%;
+    box-sizing: content-box;
+}
+
+.container-post {
+    width: 100%;
+    padding: 2%;
+    margin-bottom: 2%;
+    display: flex;
+    flex-direction: column;
+
+    box-shadow: 0 0 10px 1px black;
+    background-color: #fff;
+    border: black solid 1px;
+    border-radius: 20px;
+}
+
+.post-header {
+    display: flex;
+    justify-content: flex-start;
+
+    margin-bottom: 2%;
+}
+
+.avatar-container {
+    width: 20%;
+}
+
+.avatar {
+    display: block;
+    width:100%;
+    border-radius: 50%;
+    -moz-border-radius: 50%;
+    -webkit-border-radius: 50%;
+}
+
+.author-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    margin-left: 5%;
+}
+
+.autor {
+    font-size: 4.5vw;
+}
+
+.time-stamp {
+    font-size: 2vw;
+}
+
+.image-container {
+    width: 100%;
+}
+
+.image {
+    width: 100%;
+}
+
+.container-comment {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 2%;
+}
+
+.container-comment .avatar-container {
+    width: 10%;
+    margin: auto;
+}
+
+.text-container {
+    width: 70%;
+}
+
+.text {
+    font-size: 1.5vw;
+}
+
+.time-stamp-container {
+    width: 15%;
+    margin: auto;
+}
+
+.time-stamp-container .time-stamp {
+    font-size: 1.5vw;
+}
+

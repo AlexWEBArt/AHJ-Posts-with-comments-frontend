@@ -1,5 +1,5 @@
 [![Build status](https://ci.appveyor.com/api/projects/status/e28hdsp6575ac6lf?svg=true)](https://ci.appveyor.com/project/AlexWEBArt/ahj-posts-with-comments-frontend)
-https://alexwebart.github.io/AHJ-Posts-with-comments-frontend.git/
+https://alexwebart.github.io/AHJ-Posts-with-comments-frontend/
 
 ## Posts with comments* (задача со звёздочкой)
 

@@ -1,5 +1,5 @@
 import {
-  Subject, catchError, of, interval, mergeMap, map,
+  interval, mergeMap, map, from, forkJoin, toArray,
 } from 'rxjs';
 import { ajax } from 'rxjs/ajax';
 import CreateNewPost from './CreateNewPost';
@@ -10,88 +10,51 @@ document.querySelector('body').style.backgroundImage = `url(${background})`;
 
 const postBox = document.querySelector('.container-posts');
 
-const post = new CreateNewPost(postBox);
+const postView = new CreateNewPost(postBox);
 
 const PERIOD = 10000;
 const BASE_URL = 'https://posts-with-comments-backend.onrender.com/posts';
 
-const checkPostSubject$ = new Subject();
+const postsIds = new Set();
 
-// function getRequest(url) {
-//   return new Observable((observer) => {
-//     const controller = new AbortController();
-
-//     fetch(url, {
-//       signal: controller.signal,
-//     })
-//       .then(res => res.json())
-//       .then((data) => {
-//         observer.next(data);
-//         observer.complete();
-//       })
-//       .catchError(err => observer.error(err));
-//     return () => controller.abort();
-//   })
-// }
-
-let responsePost;
+const latestPosts$ = from(ajax.getJSON(`${BASE_URL}/latest`))
+  .pipe(
+    mergeMap((posts) => {
+      const commentObservables = posts.data.map((post) => from(ajax.getJSON(`${BASE_URL}/comments/latest/?id=${post.id}`))
+        .pipe(
+          map((response) => {
+            const comments = response.data;
+            return ({
+              ...post,
+              comments,
+            });
+          }),
+        ));
+      return forkJoin(commentObservables);
+    }),
+    toArray(),
+  );
 
 interval(PERIOD)
   .pipe(
-    mergeMap(() => ajax.getJSON(`${BASE_URL}/latest`)
-      .pipe(
-        catchError((error) => {
-          console.log('error: ', error);
-          return of(null);
-        }),
-        map((value) => {
-          responsePost = value;
-          return value;
-        }),
-      )),
-    mergeMap((value) => {
-      const postId = value.data[0].id;
-      return ajax.getJSON(`${BASE_URL}/comments/latest/?id=${postId}`)
-        .pipe(
-          map((responseComments) => ({ responsePost, responseComments })),
-          catchError((error) => {
-            console.log('error: ', error);
-            return of(null);
-          }),
-        );
-    }),
-  )
-  .subscribe(checkPostSubject$);
+    mergeMap(() => latestPosts$),
+  ).subscribe((posts) => {
+    const newPosts = posts[0].reduce((acc, post) => {
+      if (postsIds.has(post.id)) {
+        return acc;
+      }
 
-checkPostSubject$.subscribe({
-  next: (value) => {
-    const idList = Array.from(document.querySelectorAll('.container-post')).map((item) => item.getAttribute('id'));
+      postsIds.add(post.id);
+      acc.push(post);
+      return acc;
+    }, []);
 
-    if (value.responsePost) {
-      value.responsePost.data.forEach((item) => {
-        if (!idList.includes(item.id)) {
-          post.renderPost(item);
-        }
-      });
+    for (const post of newPosts) {
+      postView.renderPost(post);
+      if (post.comments) {
+        post.comments.forEach((comment) => {
+          CreateNewPost.renderComment(comment);
+        });
+      }
     }
-
-    if (value.responseComments) {
-      value.responseComments.data.forEach((item) => {
-        CreateNewPost.renderComment(item);
-      });
-    }
-  },
-  error: (err) => console.log(err),
-});
-
-// checkPostSubject$.subscribe({
-//   next: (value) => {
-//     console.log(value);
-//     if (value) {
-//       value.value.data.forEach((item) => {
-//         post.renderComment(item);
-//       });
-//     }
-//   },
-//   error: (err) => console.log(err),
-// });
+  });
